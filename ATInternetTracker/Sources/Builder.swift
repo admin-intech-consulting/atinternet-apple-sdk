@@ -490,9 +490,13 @@ class Builder: Operation {
             }
             
             var separator = p.options?.separator ?? ","
-            if let opts = p.options, opts.encode == true {
-                strValue = strValue.percentEncodedString
-                separator = opts.separator.percentEncodedString
+            // in iOS 17, URL query params are automatically encoded, so we must disable this otherwise params are encoded twice
+            // see https://developer.apple.com/documentation/foundation/url/3126806-init
+            if #unavailable(iOS 17) {
+                if let opts = p.options, opts.encode == true {
+                    strValue = strValue.percentEncodedString
+                    separator = opts.separator.percentEncodedString
+                }
             }
             
             let key = p.isProperty ? p.key.lowercased() : p.key
